@@ -1,0 +1,87 @@
+@startuml C4_component
+title WarmHouse Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(User, "User", "Пользователь системы WarmHouse")
+Person(Admin, "Administrator", "Администратор системы WarmHouse")
+System(WarmHouseSystem, "WarmHouse System", "Система управления умными домами WarmHouse")
+System_Ext(NotificationSystem, "Notification System", "Внешняя система нотификаций (Email, чат-бот)")
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(WebApp, "Web Application", "ReactJS", "Приложение для работы пользователей с системой")
+  Container(UsersService, "Users Service", "Java, Spring", "Управление пользователями")
+  Container(DevicesService, "Devices Service", "Java, Spring", "Управление устройствами")
+  Container(MetricsService, "Metrics Service", "Java, Spring", "Управление метриками устройств")
+  Container(AutomationService, "Automation Service", "Java, Spring", "Автоматизация и алертинг")
+  ContainerDb(UsersDatabase, "Users Database", "PostgreSQL", "Хранилище данных о пользователях")
+  ContainerDb(DevicesDatabase, "Devices Database", "PostgreSQL", "Хранилище данных об устройствах")
+  ContainerDb(MetricsDatabase, "Metrics Database", "MongoDB", "Хранилище показаний системы")
+  ContainerDb(AutomationDatabase, "Automation Database", "PostgreSQL", "Хранилище данных об автоматизациях")
+  ContainerDb(MessageBus, "Message Bus", "Kafka", "Шина данных системы")
+}
+
+Container(WebApp, "Web Application", "ReactJS") {
+  Component(ApiGW, "Api Gateway", "Api шлюз для запросов из UI")
+  Component(Nginx, "Nginx with static", "Nginx со статикой для Web")
+}
+
+Container(UsersService, "Users Service", "Java, Spring") {
+  Component(UsersApi, "UsersApi", "Api управления пользователями и ролями")
+}
+
+Container(DevicesService, "Devices Service", "Java, Spring") {
+  Component(DevicesApi, "Api", "Api сервиса управления устройствами")
+  Component(CommandsHandler, "Commands Handler", "Обработчик команд")
+  Component(StatusManager, "Status Manager", "Менеджер состояния устройств")
+
+  Rel(DevicesApi, CommandsHandler, "Отправляет команду")
+  Rel(StatusManager, CommandsHandler, "Отправляет команду")
+}
+
+Container(MetricsService, "Metrics Service", "Java, Spring") {
+  Component(MetricsApi, "MetricsApi", "Api сервиса метрик")
+  Component(AnalyticsService, "AnalyticsService", "Сервис аналитики")
+
+  Rel(MetricsApi, AnalyticsService, "Запрашивает данные, создает агрегат")
+}
+
+Container(AutomationService, "Automation Service", "Java, Spring") {
+  Component(AutomationApi, "AutomationApi", "Api сервиса автоматизации")
+  Component(SchedulerService, "SchedulerService", "Сервис расписания")
+  Component(AutomationHandler, "AutomationHandler", "Сервис автоматизации")
+  Component(NotificationService, "NotificationService", "Сервис уведомления")
+
+  Rel(AutomationApi, SchedulerService, "Создает/забирает расписние")
+  Rel(SchedulerService, NotificationService, "Уведомлеет по триггеру")
+}
+
+System_Ext(WarmHouseDevices, "WarmHouse Devices", "Устройства умного дома, установленные в домах")
+
+Rel_D(User, ApiGW, "Использует систему")
+Rel_D(Admin, ApiGW, "Управляет системой")
+Rel_D(User, Nginx, "Забирает статику")
+Rel_D(Admin, Nginx, "Забирает статику")
+
+Rel_D(ApiGW, UsersApi, "Определяет пользователя")
+Rel_D(ApiGW, DevicesApi, "Отправляет команды")
+Rel_D(ApiGW, MetricsApi, "Запрашивает метрики/статусы")
+Rel_D(ApiGW, AutomationApi, "Управляет автоматизациями и нотификациями")
+
+Rel_D(UsersService, UsersDatabase, "Хранит/получает пользователей")
+Rel_D(DevicesService, DevicesDatabase, "Хранит/получает устройства")
+Rel_D(AutomationService, AutomationDatabase, "Хранит/получает автоматизации")
+Rel_D(MetricsService, MetricsDatabase, "Хранит/получает метрики")
+
+Rel_U(WarmHouseDevices, MessageBus, "Собирает показания/статусы")
+Rel_U(MessageBus, StatusManager, "Собирает показания/статусы")
+Rel_U(MessageBus, AutomationHandler, "Отслеживает изменение показаний/статусов")
+Rel_D(CommandsHandler, MessageBus, "Управляет устройствами")
+Rel_D(MessageBus, WarmHouseDevices, "Управляет устройствами")
+
+Rel_D(NotificationService, NotificationSystem, "Отправляет уведомление")
+
+' SHOW_LEGEND()
+@enduml

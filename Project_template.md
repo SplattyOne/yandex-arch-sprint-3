@@ -66,15 +66,21 @@
 
 **Диаграмма контейнеров (Containers)**
 
-Добавьте диаграмму.
+```markdown
+[Диаграмма контейнеров C4](https://github.com/SplattyOne/yandex-arch-sprint-3/blob/warmhouse/diagrams/C4_container.png)
+```
 
 **Диаграмма компонентов (Components)**
 
-Добавьте диаграмму для каждого из выделенных микросервисов.
+```markdown
+[Диаграмма компонентов C4](https://github.com/SplattyOne/yandex-arch-sprint-3/blob/warmhouse/diagrams/C4_component.png)
+```
 
 **Диаграмма кода (Code)**
 
-Добавьте одну диаграмму или несколько.
+```markdown
+[Диаграмма кода C4](https://github.com/SplattyOne/yandex-arch-sprint-3/blob/warmhouse/diagrams/C4_code.png)
+```
 
 # Задание 3. Разработка ER-диаграммы
 

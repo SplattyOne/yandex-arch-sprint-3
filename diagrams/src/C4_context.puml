@@ -10,9 +10,12 @@ Person(admin, "Administrator", "Администратор системы WarmHo
 System(WarmHouseSystem, "WarmHouse System", "Система управления умными домами WarmHouse")
 
 System_Ext(WarmHouseDevices, "WarmHouse Devices", "Устройства умного дома, установленные в домах")
+System_Ext(NotificationSystem, "Notification System", "Внешняя система нотификаций (Email, чат-бот)")
 
 Rel(user, WarmHouseSystem, "Использует систему со своими устройствами")
 Rel(admin, WarmHouseSystem, "Управляет системой")
 Rel(WarmHouseSystem, WarmHouseDevices, "Собирает показания, управляет устройствами")
+Rel(WarmHouseSystem, NotificationSystem, "Отправляет уведомление")
 
+' SHOW_LEGEND()
 @enduml
