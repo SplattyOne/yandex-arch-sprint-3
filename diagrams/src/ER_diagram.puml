@@ -1,0 +1,165 @@
+@startuml ER_diagram
+title WarmHouse ER Diagram
+skinparam linetype ortho
+hide circle
+
+class User  {
+  - int id
+  - int age
+  - string name
+  - boolean status
+  - datetime updated_dt
+  - datetime created_dt
+}
+
+class Role {
+  - int id
+  - string name
+  - datetime updated_dt
+  - datetime created_dt
+}
+
+class UserRole {
+  - int id
+  - int user_id
+  - int role_id
+  - datetime created_dt
+}
+
+User "1" -- "0..*" UserRole
+Role "1" -- "0..*" UserRole
+
+class House {
+  - int id
+  - int user_id
+  - string address
+  - datetime updated_dt
+  - datetime created_dt
+}
+
+User "1" -- "0..*" House
+
+class Device {
+  - int id
+  - int type_id
+  - int house_id
+  - string serial_number
+  - int status_id
+  - datetime updated_dt
+  - datetime created_dt
+}
+
+class DeviceType {
+  - int id
+  - string name
+}
+
+class DeviceStatus {
+  - int id
+  - string name
+}
+
+DeviceType "1" -- "0..*" Device
+DeviceStatus "1" -- "0..*" Device
+House "1" -- "0..*" Device
+
+class Command {
+  - int id
+  - string name
+  - string code
+  - string args
+  - datetime updated_dt
+  - datetime created_dt
+}
+
+class SupportedCommand {
+  - int id
+  - int command_id
+  - int device_id
+  - datetime created_dt
+}
+
+Device "1" -- "0..*" SupportedCommand
+Command "1" -- "0..*" SupportedCommand
+
+class Automation {
+  - int id
+  - int type_id
+  - int device_id
+  - int status_id
+  - int schedule_id
+  - string conditions
+  - datetime updated_dt
+  - datetime created_dt
+}
+
+Device "1" -- "0..*" Automation
+
+class AutomationStatus {
+  - int id
+  - string name
+}
+
+class AutomationType {
+  - int id
+  - string name
+}
+
+class AutomationSchedule {
+  - int id
+  - string cron_schedule
+  - binary state
+  - datetime updated_dt
+  - datetime created_dt
+}
+
+AutomationType "1" -- "0..*" Automation
+AutomationStatus "1" -- "0..*" Automation
+AutomationSchedule "1" -- "0..*" Automation
+
+class Job {
+  - int id
+  - string type_id
+  - binary state
+  - datetime updated_dt
+  - datetime created_dt
+}
+
+class JobType {
+  - int id
+  - string name
+}
+
+JobType "1" -- "0..*" Job
+
+class AutomatedJob {
+  - int id
+  - int automation_id
+  - int job_id
+  - datetime created_dt
+}
+
+Job "1" -- "0..*" AutomatedJob
+Automation "1" -- "0..*" AutomatedJob
+
+class TelemetryData {
+  - int id
+  - int device_id
+  - string key
+  - string value
+  - datetime created_dt
+}
+
+class TelemetryReport {
+  - int id
+  - int user_id
+  - string title
+  - string content
+  - datetime updated_dt
+  - datetime created_dt
+}
+
+Device "1" -- "0..*" TelemetryData
+User "1" -- "0..*" TelemetryReport
+
+@enduml

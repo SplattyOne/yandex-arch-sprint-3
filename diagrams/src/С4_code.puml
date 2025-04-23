@@ -1,0 +1,35 @@
+@startuml C4_code
+title WarmHouse Metrics Sequence Diagram
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Sequence.puml
+
+Person(User, "User", "Пользователь системы WarmHouse")
+
+Container_Boundary(DevicesService, "Devices Service")
+  Component(DevicesApi, "Api", "Api сервиса управления устройствами")
+  Component(CommandsHandler, "Commands Handler", "Обработчик команд")
+  Component(StatusManager, "Status Manager", "Менеджер состояния устройств")
+Boundary_End()
+
+ContainerDb(c4, "Database", "Relational Database Schema", "Stores user registration information, hashed authentication credentials, access logs, etc.")
+ContainerDb(MetricsDatabase, "Metrics Database", "MongoDB", "Хранилище показаний системы")
+ContainerDb(MessageBus, "Message Bus", "Kafka", "Шина данных системы")
+System_Ext(WarmHouseDevices, "WarmHouse Devices", "Устройства умного дома, установленные в домах")
+
+loop every n minutes
+  Rel(WarmHouseDevices, MessageBus, "Отправляет метрику в брокера", "MQ, mTLS")
+  Rel(StatusManager, MessageBus, "Получает метрику от брокера", "MQ, mTLS")
+  Rel(StatusManager, MetricsDatabase, "Сохраняет метрику в БД", "conn, mTLS")
+end
+
+Rel(User, DevicesApi, "Пользователь хочет получить метрику вне расписания", "HTTP, mTLS")
+Rel(DevicesApi, CommandsHandler, "Создается задача для устройства", "HTTP, mTLS")
+Rel(CommandsHandler, MessageBus, "Задача выполняется, в брокера кладется сообщение", "MQ, mTLS")
+Rel(WarmHouseDevices, MessageBus, "Устройство получает задачу", "MQ, mTLS")
+Rel(WarmHouseDevices, WarmHouseDevices, "Устройство выполняет задачу")
+Rel(WarmHouseDevices, MessageBus, "Отправляет метрику в брокера", "MQ, mTLS")
+Rel(StatusManager, MessageBus, "Получает метрику от брокера", "MQ, mTLS")
+Rel(StatusManager, MetricsDatabase, "Сохраняет метрику в БД", "conn, mTLS")
+
+' SHOW_LEGEND()
+@enduml

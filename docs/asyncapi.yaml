@@ -1,0 +1,100 @@
+asyncapi: '2.6.0'
+info:
+  title: WarmHouse Async API
+  description: AsyncAPI спецификация для коммуникации с удаленными устройствами WarmHouse
+  version: '1.0.0'
+servers:
+  dev:
+    url: kfk.dev-warmhouse.com:9092
+    protocol: kafka-secure
+    description: Шина данных WarmHouse в dev среде
+    security:
+      - saslScram: []
+    tags:
+      - name: "env:development"
+  prod:
+    url: kfk.warmhouse.com:9092
+    protocol: kafka-secure
+    description: Шина данных WarmHouse в production среде
+    security:
+      - saslScram: []
+    tags:
+      - name: "env:production"
+channels:
+  devices.send_data:
+    description: Топик для передачи метрик с устройств на сервер
+    publish:
+      operationId: deviceSendData
+      message:
+        $ref: '#/components/messages/sendMetricsMsg'
+  devices.{device_serial_number}.send_command:
+    description: Топик для отправки команд на устройства
+    publish:
+      operationId: deviceSendCommand
+      message:
+        $ref: '#/components/messages/sendCommandMsg'
+    parameters:
+      device_serial_number:
+        description: Серийный номер устройства
+        schema:
+          type: string
+components:
+  securitySchemes:
+    saslScram:
+      type: scramSha512
+      description: SASL SCRAM-SHA-512 authentication
+  messages:
+    sendMetricsMsg:
+      summary: Сообщение, содержащее метрики с устройства
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/sendMetricsPayload'
+    sendCommandMsg:
+      summary: Сообщение с командой для запроса метрики с устройства
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/sendCommandPayload'
+  schemas:
+    sendMetricsPayload:
+      type: object
+      properties:
+        message_id:
+          type: string
+          format: uuid
+          description: Уникальный uuid сообщения
+        device_serial_number:
+          type: string
+          description: Серийный номер устройства
+        metrics:
+          type: object
+          additionalProperties:
+            oneOf:
+              - type: number
+              - type: string
+              - type: boolean
+          description: Метрики устройства в формате ключ-значение
+        timestamp:
+          type: string
+          format: date-time
+          description: Дата и время отправки сообщения
+    sendCommandPayload:
+      type: object
+      properties:
+        message_id:
+          type: string
+          format: uuid
+          description: Уникальный uuid сообщения
+        device_serial_number:
+          type: string
+          description: Серийный номер устройства
+        command_type:
+          type: string
+          description: Тип команды
+        command_parameters:
+          type: object
+          additionalProperties: true
+          description: Параметры команды
+        timestamp:
+          type: string
+          format: date-time
+          description: Дата и время отправки сообщения
