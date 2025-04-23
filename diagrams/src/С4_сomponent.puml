@@ -21,6 +21,7 @@ Container_Boundary(WarmHouseSystem, "WarmHouse System") {
   ContainerDb(MetricsDatabase, "Metrics Database", "MongoDB", "Хранилище показаний системы")
   ContainerDb(AutomationDatabase, "Automation Database", "PostgreSQL", "Хранилище данных об автоматизациях")
   ContainerDb(MessageBus, "Message Bus", "Kafka", "Шина данных системы")
+  Container(MQTT2KafkaAdapter, "Adapter", "MQTT2Kafka", "Адаптер IOT запросов в Kafka")
 }
 
 Container(WebApp, "Web Application", "ReactJS") {
@@ -75,11 +76,13 @@ Rel_D(DevicesService, DevicesDatabase, "Хранит/получает устро
 Rel_D(AutomationService, AutomationDatabase, "Хранит/получает автоматизации")
 Rel_D(MetricsService, MetricsDatabase, "Хранит/получает метрики")
 
-Rel_U(WarmHouseDevices, MessageBus, "Собирает показания/статусы")
+Rel_U(WarmHouseDevices, MQTT2KafkaAdapter, "Собирает показания/статусы")
+Rel_U(MQTT2KafkaAdapter, MessageBus, "Собирает показания/статусы")
 Rel_U(MessageBus, StatusManager, "Собирает показания/статусы")
 Rel_U(MessageBus, AutomationHandler, "Отслеживает изменение показаний/статусов")
 Rel_D(CommandsHandler, MessageBus, "Управляет устройствами")
-Rel_D(MessageBus, WarmHouseDevices, "Управляет устройствами")
+Rel_D(MessageBus, MQTT2KafkaAdapter, "Управляет устройствами")
+Rel_D(MQTT2KafkaAdapter, WarmHouseDevices, "Управляет устройствами")
 
 Rel_D(NotificationService, NotificationSystem, "Отправляет уведомление")
 
